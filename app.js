@@ -19,13 +19,14 @@ var usuarioRoutes = require('./Routes/usuario');
 var loginRoutes = require('./Routes/login');
 var hospitalRoutes = require('./Routes/hospital');
 var medicoRoutes = require('./Routes/medico');
-
+var busquedaRoutes = require('./Routes/busqueda');
 
 //Routes
 app.use('/usuario', usuarioRoutes);
 app.use('/hospital', hospitalRoutes);
 app.use('/medico', medicoRoutes);
 app.use('/login', loginRoutes);
+app.use('/busqueda', busquedaRoutes);
 app.use('/', appRoutes);
 
 // Escuchar peticiones

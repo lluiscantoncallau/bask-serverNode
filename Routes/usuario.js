@@ -13,7 +13,16 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res, next) => {
-    Usuario.find({}, '_id nombre email img role', (err, usuarios) => {
+
+    var skip = req.query.skip || 0;
+    skip = Number(skip);
+    var take = req.query.take || 5;
+    take = Number(take);
+
+    Usuario.find({}, '_id nombre email img role')
+        .skip(skip)
+        .limit(take)
+        .exec((err, usuarios) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -21,11 +30,14 @@ app.get('/', (req, res, next) => {
                 errors: err
             });
         }
-
-        res.status(200).json({
-            ok: true,
-            usuarios: usuarios
+        Usuario.count({}, (err, conteo)=> {
+            res.status(200).json({
+                ok: true,
+                usuarios: usuarios,
+                total: conteo
+            });
         });
+      
 
     });
 

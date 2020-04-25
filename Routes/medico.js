@@ -12,21 +12,34 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res, next) => {
-    Medico.find({}, '_id nombre img hospital', (err, medicos) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'Error en mongo DB',
-                errors: err
+
+    var skip = req.query.skip || 0;
+    skip = Number(skip);
+    var take = req.query.take || 5;
+    take = Number(take);
+
+    Medico.find({})
+        .skip(skip)
+        .limit(take)
+        .populate('usuario', 'nombre email')
+        .populate('hospital')
+        .exec((err, medicos) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error en mongo DB',
+                    errors: err
+                });
+            }
+            Medico.count({}, (err, conteo) => {
+                res.status(200).json({
+                    ok: true,
+                    medicos: medicos,
+                    total: conteo
+                });
             });
-        }
 
-        res.status(200).json({
-            ok: true,
-            medicos: medicos
         });
-
-    });
 
 });
 
@@ -49,7 +62,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
                 errors: { message: 'No existe un medico con ese ID' }
             });
         }
-        medico.nombre = body.nombre;        
+        medico.nombre = body.nombre;
         medico.usuario = req.usuario._id;
         medico.hospital = body.hospital;
 
@@ -60,7 +73,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
                     mensaje: 'Error en mongo DB',
                     errors: err
                 });
-            }           
+            }
             res.status(201).json({
                 ok: true,
                 medico: medicoAlmacenado
@@ -72,7 +85,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
 app.post('/', mdAuthenticacion.verificaToken, (req, res) => {
     var body = req.body;
     var medico = new Medico({
-        nombre: body.nombre, 
+        nombre: body.nombre,
         img: body.img,
         usuario: req.usuario._id,
         hospital: body.hospital

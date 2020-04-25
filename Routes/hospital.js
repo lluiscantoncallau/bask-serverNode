@@ -12,21 +12,33 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res, next) => {
-    Hospital.find({}, '_id nombre img', (err, hospitales) => {
-        if (err) {
-            return res.status(500).json({
-                ok: false,
-                mensaje: 'Error en mongo DB',
-                errors: err
+
+    var skip = req.query.skip || 0;
+    skip = Number(skip);
+    var take = req.query.take || 5;
+    take = Number(take);
+
+    Hospital.find({})
+        .skip(skip)
+        .limit(take)
+        .populate('usuario', 'nomre email')
+        .exec((err, hospitales) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    mensaje: 'Error en mongo DB',
+                    errors: err
+                });
+            }
+            Hospital.count({}, (err, conteo) => {
+                res.status(200).json({
+                    ok: true,
+                    hospitales: hospitales,
+                    total: conteo
+                });
             });
-        }
 
-        res.status(200).json({
-            ok: true,
-            hospitales: hospitales
         });
-
-    });
 
 });
 
@@ -49,7 +61,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
                 errors: { message: 'No existe un hospital con ese ID' }
             });
         }
-        hospital.nombre = body.nombre;        
+        hospital.nombre = body.nombre;
         hospital.usuario = req.usuario._id;
         hospital.save((err, hospitalAlmacenado) => {
             if (err) {
@@ -58,7 +70,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
                     mensaje: 'Error en mongo DB',
                     errors: err
                 });
-            }           
+            }
             res.status(201).json({
                 ok: true,
                 hospital: hospitalAlmacenado
@@ -70,7 +82,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
 app.post('/', mdAuthenticacion.verificaToken, (req, res) => {
     var body = req.body;
     var hospital = new Hospital({
-        nombre: body.nombre, 
+        nombre: body.nombre,
         img: body.img,
         usuario: req.usuario._id
     });
