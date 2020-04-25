@@ -20,6 +20,8 @@ var loginRoutes = require('./Routes/login');
 var hospitalRoutes = require('./Routes/hospital');
 var medicoRoutes = require('./Routes/medico');
 var busquedaRoutes = require('./Routes/busqueda');
+var uploadRoutes = require('./Routes/upload');
+var imagenesRoutes = require('./Routes/imagenes');
 
 //Routes
 app.use('/usuario', usuarioRoutes);
@@ -27,6 +29,8 @@ app.use('/hospital', hospitalRoutes);
 app.use('/medico', medicoRoutes);
 app.use('/login', loginRoutes);
 app.use('/busqueda', busquedaRoutes);
+app.use('/upload', uploadRoutes);
+app.use('/img', imagenesRoutes);
 app.use('/', appRoutes);
 
 // Escuchar peticiones
