@@ -8,6 +8,7 @@ const { OAuth2Client } = require('google-auth-library');
 var CLIENT_ID = require('../config/config').CLIENT_ID;
 const client = new OAuth2Client(CLIENT_ID);
 var app = express();
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -72,7 +73,8 @@ async function verify(token) {
 }
 
 app.post('/google', async (req, res) => {
-    var token = res.body.token;
+    console.log(req.body);
+    var token = req.body.token;
     var googleUser = await verify(token)
         .catch(e=> {
             return res.status(403).json({
@@ -98,9 +100,9 @@ app.post('/google', async (req, res) => {
                 });
             }
 
-            userDb.password = '';
+            usuarioDb.password = '';
             var token = jwt.sign({ usuario: usuarioDb }, SEED, { expiresIn: 14400 });
-            res.status(200).json({
+            return res.status(200).json({
                 ok: true,
                 usuario: usuarioDb,
                 token: token,
@@ -113,6 +115,7 @@ app.post('/google', async (req, res) => {
             nombre: googleUser.nombre,
             email: googleUser.email,          
             img: googleUser.img,
+            google: true,
             password: ':)'           
         });
     
@@ -125,7 +128,7 @@ app.post('/google', async (req, res) => {
                 });
             }
             var token = jwt.sign({ usuario: usuarioDb }, SEED, { expiresIn: 14400 });
-            res.status(201).json({
+            return res.status(201).json({
                 ok: true,
                 usuario: usuarioDb,
                 token: token,
@@ -135,11 +138,13 @@ app.post('/google', async (req, res) => {
 
     });
 
-    return res.status(200).json({
-        ok: true,
-        mensaje: 'Ok',
-        googleUser: googleUser
-    });
+    // return res.status(200).json({
+    //     ok: true,
+    //     mensaje: 'Ok',
+    //     googleUser: googleUser,
+    //     token: token,
+    //     id: usuarioDb.id
+    // });
 });
 
 
