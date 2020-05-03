@@ -26,8 +26,8 @@ app.get('/coleccion/:tabla/:busqueda', (req, res, next) => {
         default:
             return res.status(400).json({
                 ok: false,
-                mensaje: "La tabla no existe",
-                error: { mensaje: 'La tabla no existe ' }
+                message: "La tabla no existe",
+                error: { message: 'La tabla no existe ' }
             });
     }
 
@@ -65,7 +65,7 @@ app.get('/todo/:busqueda', (req, res, next) => {
 function buscarHospitales(busqueda, expr) {
     return new Promise((resolve, reject) => {
         Hospital.find({ nombre: expr })
-            .populate('usuario', 'nombre email')
+            .populate('usuario', 'nombre email img')
             .exec((err, hospitales) => {
                 if (err) {
                     reject('Error al cargar hospitales', err);
@@ -78,7 +78,7 @@ function buscarHospitales(busqueda, expr) {
 function buscarMedicos(busqueda, expr) {
     return new Promise((resolve, reject) => {
         Medico.find({ nombre: expr })
-            .populate('usuario', 'nombre email')
+            .populate('usuario', 'nombre email img')
             .populate('hospital')
             .exec((err, medicos) => {
                 if (err) {
@@ -91,7 +91,7 @@ function buscarMedicos(busqueda, expr) {
 
 function buscarUsuarios(busqueda, expr) {
     return new Promise((resolve, reject) => {
-        Usuario.find({}, 'nombre email role')
+        Usuario.find({}, 'nombre email role img')
             .or([{ nombre: expr }, { email: expr }])
             .exec((err, usuarios) => {
                 if (err) {

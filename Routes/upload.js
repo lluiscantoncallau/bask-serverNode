@@ -17,15 +17,15 @@ app.put('/:tipo/:id', (req, res) => {
     if (tiposPermitidos.indexOf(tipo) < 0) {
         return res.status(400).json({
             ok: false,
-            mensaje: 'Tipo de coleccion no valido',
-            errors: { mensaje: 'Tipo de coleccion no valido' }
+            message: 'Tipo de coleccion no valido',
+            errors: { message: 'Tipo de coleccion no valido' }
         });
     }
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).json({
             ok: false,
-            mensaje: 'Ningun fichero seleccionado',
-            errors: { mensaje: 'Debe de seleccionar una imagen' }
+            message: 'Ningun fichero seleccionado',
+            errors: { message: 'Debe de seleccionar una imagen' }
         });
     }
 
@@ -38,8 +38,8 @@ app.put('/:tipo/:id', (req, res) => {
     if (listaExtensionesPermitidas.indexOf(extension) < 0) {
         return res.status(400).json({
             ok: false,
-            mensaje: 'Extension no valida',
-            errors: { mensaje: 'Las extensiones permitidas son ' + listaExtensionesPermitidas.join(',') }
+            message: 'Extension no valida',
+            errors: { message: 'Las extensiones permitidas son ' + listaExtensionesPermitidas.join(',') }
         });
     }
 
@@ -52,7 +52,7 @@ app.put('/:tipo/:id', (req, res) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error al mover archivo',
+                message: 'Error al mover archivo',
                 errors: err
             });
         }
@@ -75,7 +75,7 @@ function subirPorTipo(tipo, id, nombreArchivo, res) {
                     usuarioActualizado.password = '';
                     return res.status(200).json({
                         ok: true,
-                        mensaje: 'Imagen de usuario actualizada',
+                        message: 'Imagen de usuario actualizada',
                         usuario: usuarioActualizado                       
                     });
                  });
@@ -93,7 +93,7 @@ function subirPorTipo(tipo, id, nombreArchivo, res) {
                 medico.save((err, medicoActualizado) => {
                     return res.status(200).json({
                         ok: true,
-                        mensaje: 'Imagen del medico actualizada',
+                        message: 'Imagen del medico actualizada',
                         medico: medicoActualizado                       
                     });
                  });
@@ -111,7 +111,7 @@ function subirPorTipo(tipo, id, nombreArchivo, res) {
                 hospital.save((err, hospitalActualizado) => {
                     return res.status(200).json({
                         ok: true,
-                        mensaje: 'Imagen del hospital actualizada',
+                        message: 'Imagen del hospital actualizada',
                         hospital: hospitalActualizado                       
                     });
                  });

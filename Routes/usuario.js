@@ -19,14 +19,14 @@ app.get('/', (req, res, next) => {
     var take = req.query.take || 5;
     take = Number(take);
 
-    Usuario.find({}, '_id nombre email img role')
+    Usuario.find({}, '_id nombre email img role google')
         .skip(skip)
         .limit(take)
         .exec((err, usuarios) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
@@ -43,7 +43,7 @@ app.get('/', (req, res, next) => {
 
 });
 
-app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
+app.put('/:id', [mdAuthenticacion.verificaToken, mdAuthenticacion.verificaAdminRoleOrMismoUsuario], (req, res) => {
     var body = req.body;
     var id = req.params.id;
 
@@ -51,14 +51,14 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
         if (!usuario) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'el usuario con el id ' + id + ' no existe',
+                message: 'el usuario con el id ' + id + ' no existe',
                 errors: { message: 'No existe un usuario con ese ID' }
             });
         }
@@ -70,7 +70,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
-                    mensaje: 'Error en mongo DB',
+                    message: 'Error en mongo DB',
                     errors: err
                 });
             }
@@ -97,7 +97,7 @@ app.post('/', (req, res) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
@@ -112,20 +112,20 @@ app.post('/', (req, res) => {
 
 });
 
-app.delete('/:id', mdAuthenticacion.verificaToken, (req, res) => {
+app.delete('/:id', [mdAuthenticacion.verificaToken, mdAuthenticacion.verificaAdminRole], (req, res) => {
     var id = req.params.id;
     Usuario.findByIdAndRemove(id, (err, usuario) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
         if (!usuario) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'el usuario con el id ' + id + ' no existe',
+                message: 'el usuario con el id ' + id + ' no existe',
                 errors: { message: 'No existe un usuario con ese ID' }
             });
         }

@@ -22,7 +22,7 @@ app.post('/', (req, res) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
@@ -30,7 +30,7 @@ app.post('/', (req, res) => {
         if (!userDb) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Credenciales incorrectas',
+                message: 'Credenciales incorrectas',
                 errors: err
             });
         }
@@ -38,7 +38,7 @@ app.post('/', (req, res) => {
         if (!bcrypt.compareSync(body.password, userDb.password)) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Credenciales incorrectas',
+                message: 'Credenciales incorrectas',
                 errors: err
             });
         }
@@ -50,7 +50,8 @@ app.post('/', (req, res) => {
             ok: true,
             usuario: userDb,
             token: token,
-            id: userDb.id
+            id: userDb.id,
+            menu: obtenerMenu(usuario.role)
         });
     });
 
@@ -63,7 +64,7 @@ async function verify(token) {
         audience: CLIENT_ID,
     });
 
-    const payload = ticket.getPayload();   
+    const payload = ticket.getPayload();
     return {
         nombre: payload.name,
         google: true,
@@ -72,30 +73,29 @@ async function verify(token) {
     }
 }
 
-app.post('/google', async (req, res) => {
-    console.log(req.body);
+app.post('/google', async (req, res) => {   
     var token = req.body.token;
     var googleUser = await verify(token)
-        .catch(e=> {
+        .catch(e => {
             return res.status(403).json({
                 ok: false,
-                mensaje: 'Token no valido'
+                message: 'Token no valido'
             });
         });
 
-    Usuario.findOne({email: googleUser.email}, (err, usuarioDb) => {
+    Usuario.findOne({ email: googleUser.email }, (err, usuarioDb) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
         if (usuarioDb) {
-            if(!usuarioDb.google) {
+            if (!usuarioDb.google) {
                 return res.status(400).json({
                     ok: false,
-                    mensaje: 'Debe de usar su authenticacion de la aplicacion',
+                    message: 'Debe de usar su authenticacion de la aplicacion',
                     errors: err
                 });
             }
@@ -106,24 +106,25 @@ app.post('/google', async (req, res) => {
                 ok: true,
                 usuario: usuarioDb,
                 token: token,
-                id: usuarioDb.id
+                id: usuarioDb.id,
+                menu: obtenerMenu(usuarioDb.role)
             });
 
         }
 
         var usuario = new Usuario({
             nombre: googleUser.nombre,
-            email: googleUser.email,          
+            email: googleUser.email,
             img: googleUser.img,
             google: true,
-            password: ':)'           
+            password: ':)'
         });
-    
+
         usuario.save((err, usuarioDb) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
-                    mensaje: 'Error en mongo DB',
+                    message: 'Error en mongo DB',
                     errors: err
                 });
             }
@@ -132,7 +133,8 @@ app.post('/google', async (req, res) => {
                 ok: true,
                 usuario: usuarioDb,
                 token: token,
-                id: usuarioDb._id
+                id: usuarioDb._id,
+                menu: obtenerMenu(usuarioDb.role)
             });
         });
 
@@ -140,12 +142,42 @@ app.post('/google', async (req, res) => {
 
     // return res.status(200).json({
     //     ok: true,
-    //     mensaje: 'Ok',
+    //     message: 'Ok',
     //     googleUser: googleUser,
     //     token: token,
     //     id: usuarioDb.id
     // });
 });
 
+function obtenerMenu(ROLE) {
+    let menu = [
+        {
+            titulo: 'Principal',
+            icono: 'mdi mdi-gauge',
+            submenu: [
+                { titulo: 'Dashboard', url: '/dashboard' },
+                { titulo: 'ProgressBar', url: '/progress' },
+                { titulo: 'Gráficas', url: '/graficas1' },
+                { titulo: 'Promesas', url: '/promesas' },
+                { titulo: 'Rxjs', url: '/rxjs' },
+            ]
+        },
+        {
+            titulo: 'Mantenimientos',
+            icono: 'mdi mdi-folder-lock-open',
+            submenu: [              
+                { titulo: 'Hospitales', url: '/hospitales' },
+                { titulo: 'Medicos', url: '/medicos' },
+            ]
+        }
+    ];
+    
+    if (ROLE === 'ADMIN_ROLE'){
+        menu[1].submenu.unshift({ titulo: 'Usuarios', url: '/usuarios' });
+    }
+
+    return menu;
+
+}
 
 module.exports = app;

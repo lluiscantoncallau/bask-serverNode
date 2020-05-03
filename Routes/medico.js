@@ -27,7 +27,7 @@ app.get('/', (req, res, next) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
-                    mensaje: 'Error en mongo DB',
+                    message: 'Error en mongo DB',
                     errors: err
                 });
             }
@@ -51,14 +51,14 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
         if (!medico) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'el medico con el id ' + id + ' no existe',
+                message: 'el medico con el id ' + id + ' no existe',
                 errors: { message: 'No existe un medico con ese ID' }
             });
         }
@@ -70,7 +70,7 @@ app.put('/:id', mdAuthenticacion.verificaToken, (req, res) => {
             if (err) {
                 return res.status(400).json({
                     ok: false,
-                    mensaje: 'Error en mongo DB',
+                    message: 'Error en mongo DB',
                     errors: err
                 });
             }
@@ -95,7 +95,7 @@ app.post('/', mdAuthenticacion.verificaToken, (req, res) => {
         if (err) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
@@ -116,14 +116,14 @@ app.delete('/:id', mdAuthenticacion.verificaToken, (req, res) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
-                mensaje: 'Error en mongo DB',
+                message: 'Error en mongo DB',
                 errors: err
             });
         }
         if (!medico) {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'el medico con el id ' + id + ' no existe',
+                message: 'el medico con el id ' + id + ' no existe',
                 errors: { message: 'No existe un medico con ese ID' }
             });
         }
@@ -134,5 +134,36 @@ app.delete('/:id', mdAuthenticacion.verificaToken, (req, res) => {
     });
 });
 
+app.get('/:id', (req, res, next) => {
+    var body = req.body;
+    var id = req.params.id;
+
+    Medico.findById(id) 
+    .populate('usuario', 'nombre email img')
+    .populate('hospital') 
+        .exec((err, medico) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    message: 'Error en mongo DB',
+                    errors: err
+                });
+            }
+            if (!medico) {
+                return res.status(400).json({
+                    ok: false,
+                    message: 'el medico con el id ' + id + ' no existe',
+                    errors: { message: 'No existe un medico con ese ID' }
+                });
+            }
+
+            res.status(201).json({
+                ok: true,
+                medico: medico
+            });
+
+        });
+
+});
 
 module.exports = app;
